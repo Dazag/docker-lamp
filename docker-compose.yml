@@ -1,0 +1,30 @@
+version: "3"
+services:
+    www:
+        container_name: ${LAMP_APACHE_NAME}
+        build: docker/apache
+        ports: 
+            - "80:80"
+        volumes:
+            -  ${WEB_APP_PATH}:/var/www/html
+        networks:
+            - default
+        working_dir: /var/www/html
+    db:
+        container_name: ${LAMP_DB_NAME}
+        image: mysql:5.6
+        ports: 
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        volumes:
+            - docker/mariadb/dump:/docker-entrypoint-initdb.d
+            - persistent:/var/lib/mysql
+        networks:
+            - default
+
+volumes:
+    persistent:
