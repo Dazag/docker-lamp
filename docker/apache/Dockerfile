@@ -4,11 +4,11 @@ FROM php:7.2-apache
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git zip unzip nano
 
-# MySQL
-RUN apt-get install -y mysql-server
-
-# GD extension
+# GD extension dependency
 RUN apt-get install -y libpng-dev
+
+# MySQL server
+RUN apt-get install -y mysql-client
 
 # Composer
 RUN curl --silent --show-error https://getcomposer.org/installer | php && \
@@ -32,17 +32,31 @@ RUN apt-get install -y libmagickwand-dev \
     && pecl install imagick \
     && docker-php-ext-enable imagick
 
-# Necessary extensions
+# Configure GD
+RUN docker-php-ext-configure gd --with-png-dir=/usr/include/ \
+    --with-jpeg-dir=/usr/include/ --with-freetype-dir=/usr/include/
+
+# Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql zip opcache gd
 
 #Add custom php.ini
 COPY php.ini /usr/local/etc/php/conf.d/
 
 # Add custom vhost
-COPY site.conf /etc/apache2/sites-enabled/
+COPY site.conf /etc/apache2/sites-enabled/000-default.conf
+
+# Add SSL custom config files
+COPY default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+COPY ssl-params.conf /etc/apache2/conf-available/ssl-params.conf
 
 # Add new custom apache configuration
-RUN mv /etc/apache2/apache2.conf /etc/apache2/apache2.conf.dist
 COPY apache2.conf /etc/apache2/apache2.conf
 
+# Enable apache rewrite
 RUN a2enmod rewrite
+
+# Enable apache SSL
+RUN a2enmod ssl
+RUN a2enmod headers
+RUN a2ensite default-ssl
+RUN a2enconf ssl-params

@@ -5,8 +5,10 @@ services:
         build: docker/apache
         ports: 
             - "80:80"
+            - "443:443"
         volumes:
-            -  ${WEB_APP_PATH}:/var/www/html
+            - ${WEB_APP_PATH}:/var/www/html
+            - $PWD/docker/ssl:/etc/ssl/custom
         networks:
             - default
         working_dir: /var/www/html
@@ -21,7 +23,7 @@ services:
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
         volumes:
-            - docker/mariadb/dump:/docker-entrypoint-initdb.d
+            - ./docker/mariadb/dump:/docker-entrypoint-initdb.d
             - persistent:/var/lib/mysql
         networks:
             - default
