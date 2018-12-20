@@ -39,8 +39,13 @@ RUN docker-php-ext-configure gd --with-png-dir=/usr/include/ \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql zip opcache gd
 
+# Install xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
 #Add custom php.ini
 COPY php.ini /usr/local/etc/php/conf.d/
+COPY templates/apache/xdebug.ini /usr/local/etc/php/conf.d/
 
 # Add custom vhost
 COPY site.conf /etc/apache2/sites-enabled/000-default.conf
