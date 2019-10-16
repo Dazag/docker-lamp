@@ -2,13 +2,13 @@ FROM php:7.2-apache
 
 # Add nano for debugging
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git zip unzip nano
+    apt-get install -y --no-install-recommends apt-utils git zip unzip nano
 
 # GD extension dependency
 RUN apt-get install -y libpng-dev
 
 # MySQL server
-RUN apt-get install -y mysql-client
+RUN apt-get install -y default-mysql-client
 
 # Composer
 RUN curl --silent --show-error https://getcomposer.org/installer | php && \
@@ -45,7 +45,7 @@ RUN pecl install xdebug \
 
 #Add custom php.ini
 COPY php.ini /usr/local/etc/php/conf.d/
-COPY templates/apache/xdebug.ini /usr/local/etc/php/conf.d/
+COPY xdebug.ini /usr/local/etc/php/conf.d/
 
 # Add custom vhost
 COPY site.conf /etc/apache2/sites-enabled/000-default.conf
