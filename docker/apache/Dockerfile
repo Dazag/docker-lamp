@@ -1,8 +1,8 @@
-FROM php:7.2-apache
+FROM php:7.2-fpm
 
 # Add nano for debugging
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends apt-utils git zip unzip nano
+    apt-get install -y --no-install-recommends apt-utils git zip libzip-dev unzip nano
 
 # GD extension dependency
 RUN apt-get install -y libpng-dev
