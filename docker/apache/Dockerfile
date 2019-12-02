@@ -1,4 +1,4 @@
-FROM php:7.2-fpm
+FROM php:7.2-apache
 
 # Add nano for debugging
 RUN apt-get update && \
