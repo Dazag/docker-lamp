@@ -1,6 +1,6 @@
-FROM php:7.2-apache
+FROM php:7.3-apache
 
-# Add nano for debugging
+# Add common libraries
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils git zip libzip-dev unzip nano
 
@@ -15,19 +15,15 @@ RUN curl --silent --show-error https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && \
     chmod +x /usr/local/bin/composer && \
     composer --version
+# Add Composer to PATH
+RUN echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc
 
-# PHPUnit
-RUN curl -fsSL https://phar.phpunit.de/phpunit-6.5.phar -o phpunit-6.5.phar && \
-    mv phpunit-6.5.phar /usr/local/bin/phpunit && \
-    chmod +x /usr/local/bin/phpunit && \
-    phpunit --version
-
-# php-memcached
+# php-memcached PECL
 RUN apt-get install -y libmemcached-dev zlib1g-dev \
     && pecl install memcached \
     && docker-php-ext-enable memcached
 
-# Imagick
+# Imagick PECL
 RUN apt-get install -y libmagickwand-dev \
     && pecl install imagick \
     && docker-php-ext-enable imagick
@@ -36,12 +32,17 @@ RUN apt-get install -y libmagickwand-dev \
 RUN docker-php-ext-configure gd --with-png-dir=/usr/include/ \
     --with-jpeg-dir=/usr/include/ --with-freetype-dir=/usr/include/
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql zip opcache gd
-
-# Install xdebug
+# Install xdebug PECL
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
+
+# Install xsl file format support
+RUN apt-get install -y libxslt-dev \
+    && docker-php-ext-install xsl
+
+# Install PHP core extensions
+RUN docker-php-ext-install pdo pdo_mysql zip opcache gd intl sysvmsg sysvsem sysvshm \
+    xsl mbstring ctype
 
 #Add custom php.ini
 COPY php.ini /usr/local/etc/php/conf.d/

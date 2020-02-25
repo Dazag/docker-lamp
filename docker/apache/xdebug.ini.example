@@ -1,0 +1,9 @@
+# Change the IP to your local IP and change the name: xdebug.ini.exampe => xdebug.ini
+xdebug.remote_enable=1
+xdebug.remote_handler=dbgp
+xdebug.remote_port=9000
+xdebug.remote_autostart=1
+xdebug.remote_connect_back=0
+xdebug.idekey=docker
+# Change to your host IP in your local area network, so docker can connect to you
+#xdebug.remote_host=10.10.7.X
