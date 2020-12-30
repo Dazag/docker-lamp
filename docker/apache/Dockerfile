@@ -29,8 +29,7 @@ RUN apt-get install -y libmagickwand-dev \
     && docker-php-ext-enable imagick
 
 # Configure GD
-RUN docker-php-ext-configure gd --with-png-dir=/usr/include/ \
-    --with-jpeg-dir=/usr/include/ --with-freetype-dir=/usr/include/
+RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/
 
 # Install xdebug PECL
 RUN pecl install xdebug \
@@ -42,7 +41,7 @@ RUN apt-get install -y libxslt-dev \
 
 # Install PHP core extensions
 RUN docker-php-ext-install pdo pdo_mysql zip opcache gd intl sysvmsg sysvsem sysvshm \
-    xsl mbstring ctype
+    xsl ctype
 
 #Add custom php.ini
 COPY php.ini /usr/local/etc/php/conf.d/
@@ -66,3 +65,7 @@ RUN a2enmod ssl
 RUN a2enmod headers
 RUN a2ensite default-ssl
 RUN a2enconf ssl-params
+
+#Add 'app' user to docker container
+RUN usermod -u 1000 www-data
+RUN groupmod -g 1000 www-data
