@@ -1,0 +1,46 @@
+version: '3'
+services:
+  www:
+    user: '${HOST_USER_ID}:${HOST_GROUP_ID}'
+    container_name: ${APP_NAME}_www
+    build:
+      context: apache
+      args:
+        APP_USER_ID: '${HOST_USER_ID}'
+        APP_GROUP_ID: '${HOST_GROUP_ID}'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - $PWD/../:/var/www/html
+      - $PWD/ssl:/etc/ssl/custom
+    networks:
+      - web_app_network
+    working_dir: /var/www/html
+    environment:
+      APACHE_RUN_USER: '#${HOST_USER_ID}'
+      APACHE_RUN_GROUP: '#${HOST_GROUP_ID}'
+      PHP_IDE_CONFIG: 'serverName=${SERVER_NAME}'
+    depends_on:
+      - db
+  db:
+    container_name: ${APP_NAME}_db
+    image: mysql:8
+    command: mysqld --sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - persistent:/var/lib/mysql
+    networks:
+      - web_app_network
+
+networks:
+  web_app_network:
+    driver: bridge
+volumes:
+    persistent:
